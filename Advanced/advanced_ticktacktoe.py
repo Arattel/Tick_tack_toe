@@ -1,25 +1,42 @@
-from game import Game
 import anytree
+
+from game import Game
 
 
 class AdvancedGame(Game):
 
     def make_decision_tree(self):
-        tree  = anytree.Node(name='', board=self._board)
+        """
+        (AdvancedGame) -> (anytree.Node)
+        Makes a decision tree for given position
+        """
+        tree = anytree.Node(name='', board=self._board)
 
         def another(player):
+            """
+            (str) -> (str)
+            Returns another player symbol
+            """
             if player == 'x':
                 return 'o'
             elif player == 'o':
                 return 'x'
 
         def make_board(board, turn, player):
+            """
+            (Board, tuple, str) -> (board)
+            Makes a board with  a given turn
+            """
             result = board.copy()
             i, j = turn
             result[i, j] = player
             return result
 
         def fork_from_root(tree, current_player):
+            """
+            (anytree.Node, str) -> (anytree.Node)
+            Recursive helper funtion
+            """
             turns = tree.board.possible_turns()
             if turns:
                 for i in range(len(turns)):
@@ -27,10 +44,16 @@ class AdvancedGame(Game):
                     board = anytree.Node(name='', board=board, parent=tree)
                     if not board.board.check_winner():
                         fork_from_root(board, another(current_player))
+
         fork_from_root(tree, 'x')
         return tree
 
     def choose_turn(self):
+        """
+        (AdvancedGame) -> (Board)
+        Chooses a best turn
+        """
+
         def finals(variant):
             ends = []
             if not variant.children:
@@ -41,6 +64,10 @@ class AdvancedGame(Game):
             return ends
 
         def find_points(variant):
+            """
+            (anytree.Node) -> (float/None)
+            Calculates a rating of any position
+            """
             if variant:
                 possibilities = finals(variant)
                 points = 0
@@ -63,4 +90,3 @@ class AdvancedGame(Game):
 if __name__ == '__main__':
     g = AdvancedGame()
     g.start_game()
-
